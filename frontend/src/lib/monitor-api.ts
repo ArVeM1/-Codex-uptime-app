@@ -16,7 +16,7 @@ async function monitorRequest<T>(accessToken: string, init: RequestInit = {}): P
   return response.json() as Promise<T>;
 }
 
-export function getMonitors(accessToken: string) { return monitorRequest<Monitor[]>(accessToken); }
+export function getMonitors(accessToken: string, signal?: AbortSignal) { return monitorRequest<Monitor[]>(accessToken, { signal }); }
 export function createMonitor(accessToken: string, input: Omit<Monitor, "id">) {
   return monitorRequest<Monitor>(accessToken, { method: "POST", body: JSON.stringify(input) });
 }

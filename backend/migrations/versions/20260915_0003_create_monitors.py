@@ -24,6 +24,14 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("CURRENT_TIMESTAMP"), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
+        sa.CheckConstraint("interval_value >= 1", name="ck_monitors_interval_positive"),
+        sa.CheckConstraint("interval_unit IN ('seconds', 'minutes', 'hours')", name="ck_monitors_interval_unit"),
+        sa.CheckConstraint(
+            "(interval_unit = 'seconds' AND interval_value <= 31536000) OR "
+            "(interval_unit = 'minutes' AND interval_value <= 525600) OR "
+            "(interval_unit = 'hours' AND interval_value <= 8760)",
+            name="ck_monitors_interval_max_seconds",
+        ),
     )
     op.create_index("ix_monitors_user_id", "monitors", ["user_id"], unique=False)
 

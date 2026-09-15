@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from uptime.infrastructure.database import Base
@@ -36,6 +36,16 @@ class RefreshSession(Base):
 
 class MonitorModel(Base):
     __tablename__ = "monitors"
+    __table_args__ = (
+        CheckConstraint("interval_value >= 1", name="ck_monitors_interval_positive"),
+        CheckConstraint("interval_unit IN ('seconds', 'minutes', 'hours')", name="ck_monitors_interval_unit"),
+        CheckConstraint(
+            "(interval_unit = 'seconds' AND interval_value <= 31536000) OR "
+            "(interval_unit = 'minutes' AND interval_value <= 525600) OR "
+            "(interval_unit = 'hours' AND interval_value <= 8760)",
+            name="ck_monitors_interval_max_seconds",
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)

@@ -29,7 +29,15 @@ export function Dashboard() {
 
   useEffect(() => {
     if (!accessToken) return;
-    void getMonitors(accessToken).then(setMonitors).catch(() => setError("Не удалось загрузить точки мониторинга.")).finally(() => setIsLoading(false));
+    const controller = new AbortController();
+    void getMonitors(accessToken, controller.signal)
+      .then(setMonitors)
+      .catch((requestError: unknown) => {
+        if (requestError instanceof DOMException && requestError.name === "AbortError") return;
+        setError("Не удалось загрузить точки мониторинга.");
+      })
+      .finally(() => { if (!controller.signal.aborted) setIsLoading(false); });
+    return () => controller.abort();
   }, [accessToken]);
 
   async function handleCreate(event: FormEvent<HTMLFormElement>) {

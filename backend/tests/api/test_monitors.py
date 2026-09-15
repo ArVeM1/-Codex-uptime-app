@@ -25,6 +25,9 @@ def test_monitor_frequency_supports_minutes_and_hours(client) -> None:
         assert response.status_code == 201
         assert response.json()["interval_unit"] == unit
 
+    too_long = client.post("/api/v1/monitors", json={"url": "https://example.com", "interval_value": 8761, "interval_unit": "hours"}, headers=headers)
+    assert too_long.status_code == 422
+
 
 def test_monitors_require_authentication_and_validate_frequency(client) -> None:
     assert client.get("/api/v1/monitors").status_code == 401
@@ -33,3 +36,19 @@ def test_monitors_require_authentication_and_validate_frequency(client) -> None:
     invalid_value = client.post("/api/v1/monitors", json={"url": "https://example.com", "interval_value": 0, "interval_unit": "minutes"}, headers=headers)
     assert invalid_unit.status_code == 422
     assert invalid_value.status_code == 422
+
+
+def test_monitor_rejects_local_urls(client) -> None:
+    headers = auth_headers(client)
+    for url in ("http://localhost", "http://127.0.0.1", "http://192.168.1.10", "https://service.local"):
+        response = client.post("/api/v1/monitors", json={"url": url, "interval_value": 1, "interval_unit": "minutes"}, headers=headers)
+        assert response.status_code == 422
+
+
+def test_monitors_are_isolated_between_users(client) -> None:
+    first_headers = auth_headers(client, "first@example.com")
+    second_headers = auth_headers(client, "second@example.com")
+    client.post("/api/v1/monitors/", json={"url": "https://first.example", "interval_value": 1, "interval_unit": "minutes"}, headers=first_headers)
+
+    assert client.get("/api/v1/monitors", headers=second_headers).json() == []
+    assert client.post("/api/v1/monitors/", json={"url": "https://second.example", "interval_value": 1, "interval_unit": "minutes"}, headers=second_headers).status_code == 201

@@ -30,3 +30,63 @@ Follow GitHub Flow for every task:
 - Before starting work, create a separate branch from the current base branch. Do not make task changes directly on the base branch.
 - Name the branch with the change type and a transliterated feature name: `feat/<nazvanie-fichi>` for new functionality or `fix/<nazvanie-ispravleniya>` for bug fixes. Use lowercase Latin characters, separate words with hyphens, and avoid spaces or Cyrillic characters.
 - After completing the task and validating the changes, open a pull request into the base branch and merge the work only through that pull request.
+
+## Pull Request Workflow
+
+Use this workflow for every change that is intended to reach `main`:
+
+1. Start from the current base branch and verify that the working tree is clean:
+   ```powershell
+   git status --short --branch
+   git switch main
+   git pull --ff-only origin main
+   ```
+2. Create a task branch before editing files. Use a lowercase Latin name with a Conventional Commit type and a transliterated feature name, for example `feat/add-monitor-alerts`, `fix/handle-timeout`, or `docs/update-pr-process`.
+3. Keep the change scoped to one logical task. Inspect the final diff and run the validation commands for every affected application before committing.
+4. Commit with a Conventional Commit subject no longer than 72 characters, for example `docs: document pull request workflow`. Use an explanatory body only when the reason is not clear from the diff.
+5. Push the branch and set its upstream:
+   ```powershell
+   git push --set-upstream origin <task-branch>
+   ```
+6. Open a pull request into `main`. The title must also follow Conventional Commits and describe the user-visible change, for example `docs: document pull request workflow`.
+
+Every pull request description must contain:
+
+- `Summary`: what changed and why;
+- `Changes`: the important files, behavior, or documentation updates;
+- `Validation`: exact commands that were run and their results;
+- `Risks or follow-up`: known limitations, migrations, configuration changes, or `None`;
+- `Screenshots`: screenshots for visible frontend changes, or `Not applicable`;
+- an issue link when an issue exists.
+
+Use this body template:
+
+```markdown
+## Summary
+
+<!-- Explain the purpose of this change. -->
+
+## Changes
+
+-
+
+## Validation
+
+- `command` — result
+
+## Risks or follow-up
+
+None.
+
+## Screenshots
+
+Not applicable.
+```
+
+Create the PR with the repository's configured GitHub tooling, for example:
+
+```powershell
+gh pr create --base main --head <task-branch> --title "<conventional-title>" --body-file <pr-description.md>
+```
+
+Do not merge the pull request automatically unless the user explicitly asks for merging. Before handing it off, report the PR URL, source and target branches, commit(s), validation results, and any remaining reviewer action.

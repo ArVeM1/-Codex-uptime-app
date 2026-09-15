@@ -48,39 +48,39 @@ Use this workflow for every change that is intended to reach `main`:
    ```powershell
    git push --set-upstream origin <task-branch>
    ```
-6. Open a pull request into `main`. The title must also follow Conventional Commits and describe the user-visible change, for example `docs: document pull request workflow`.
+6. Open a pull request into `main`. The title must follow Conventional Commits and may use Russian, for example `docs: описать процесс pull request`. Write the entire pull request description in Russian.
 
 Every pull request description must contain:
 
-- `Summary`: what changed and why;
-- `Changes`: the important files, behavior, or documentation updates;
-- `Validation`: exact commands that were run and their results;
-- `Risks or follow-up`: known limitations, migrations, configuration changes, or `None`;
-- `Screenshots`: screenshots for visible frontend changes, or `Not applicable`;
-- an issue link when an issue exists.
+- `Краткое описание`: что изменено и зачем;
+- `Изменения`: важные файлы, поведение или обновления документации;
+- `Проверка`: точные команды и их результаты;
+- `Риски или дальнейшие действия`: известные ограничения, миграции и изменения конфигурации либо `Нет`;
+- `Скриншоты`: скриншоты для видимых изменений frontend либо `Не применимо`;
+- ссылка на issue, если она существует.
 
 Use this body template:
 
 ```markdown
-## Summary
+## Краткое описание
 
-<!-- Explain the purpose of this change. -->
+<!-- Опишите цель изменения. -->
 
-## Changes
+## Изменения
 
 -
 
-## Validation
+## Проверка
 
-- `command` — result
+- `команда` — результат
 
-## Risks or follow-up
+## Риски или дальнейшие действия
 
-None.
+Нет.
 
-## Screenshots
+## Скриншоты
 
-Not applicable.
+Не применимо.
 ```
 
 Create the PR with the repository's configured GitHub tooling, for example:

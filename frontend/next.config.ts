@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
       { source: "/api/v1/profile/avatar", destination: `${backendUrl}/api/v1/profile/avatar` },
       { source: "/api/v1/profile/avatar/", destination: `${backendUrl}/api/v1/profile/avatar/` },
       { source: "/api/v1/profile/:path*", destination: `${backendUrl}/api/v1/profile/:path*` },
+      { source: "/api/v1/monitors", destination: `${backendUrl}/api/v1/monitors` },
+      { source: "/api/v1/monitors/", destination: `${backendUrl}/api/v1/monitors/` },
+      { source: "/api/v1/monitors/:path*", destination: `${backendUrl}/api/v1/monitors/:path*` },
     ];
   },
 };

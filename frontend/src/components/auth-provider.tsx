@@ -1,6 +1,7 @@
 "use client";
 
 import { type AuthResponse, type AuthUser, type LoginInput, type RegistrationInput, login, logout, refresh, register } from "@/lib/auth-api";
+import { setAccessToken as setApiAccessToken } from "@/lib/api-client";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 type AuthContextValue = {
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 function applyResponse(response: AuthResponse, setAccessToken: (value: string) => void, setUser: (value: AuthUser) => void) {
   setAccessToken(response.access_token);
+  setApiAccessToken(response.access_token);
   setUser(response.user);
 }
 
@@ -40,6 +42,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
   const signOut = useCallback(async () => {
     await logout();
     setAccessToken(null);
+    setApiAccessToken(null);
     setUser(null);
   }, []);
 

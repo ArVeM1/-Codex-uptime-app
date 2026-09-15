@@ -23,7 +23,7 @@ export function ProfilePage() {
   useEffect(() => {
     if (isAuthLoading) return;
     if (!accessToken || !userId) { router.replace("/"); return; }
-    void getProfile(accessToken).then((profile) => { updateUser(profile); setName(profile.name); setAvatarPreview(profile.avatar_url); }).catch((requestError: unknown) => setError(requestError instanceof AuthApiError ? requestError.message : "Не удалось загрузить профиль.")).finally(() => setIsLoading(false));
+    void getProfile().then((profile) => { updateUser(profile); setName(profile.name); setAvatarPreview(profile.avatar_url); }).catch((requestError: unknown) => setError(requestError instanceof AuthApiError ? requestError.message : "Не удалось загрузить профиль.")).finally(() => setIsLoading(false));
   }, [accessToken, isAuthLoading, router, updateUser, userId]);
 
   useEffect(() => () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current); }, []);
@@ -41,8 +41,8 @@ export function ProfilePage() {
     if (!accessToken) return;
     setError(null); setMessage(null); setIsSaving(true);
     try {
-      let profile = await updateProfile(accessToken, name);
-      if (avatarFile) profile = await uploadAvatar(accessToken, avatarFile);
+      let profile = await updateProfile(name);
+      if (avatarFile) profile = await uploadAvatar(avatarFile);
       updateUser(profile); setName(profile.name); setAvatarFile(null); setAvatarPreview(profile.avatar_url); setMessage("Профиль сохранён.");
     } catch (requestError) { setError(requestError instanceof AuthApiError ? requestError.message : "Не удалось сохранить профиль."); }
     finally { setIsSaving(false); }

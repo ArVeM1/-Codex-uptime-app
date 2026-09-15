@@ -1,39 +1,26 @@
+import type { AxiosRequestConfig } from "axios";
+import { apiRequest } from "./api-client";
 import type { AuthUser } from "./auth-api";
 import { AuthApiError } from "./auth-api";
 
-async function profileRequest<T>(accessToken: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch("/api/v1/profile/", {
-    ...init,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}`, ...init.headers },
-  });
-  if (!response.ok) {
-    const payload = await response.json().catch(() => null);
-    throw new AuthApiError(payload && typeof payload.detail === "string" ? payload.detail : "Не удалось обновить профиль.");
+async function profileRequest<T>(config: AxiosRequestConfig, fallback: string): Promise<T> {
+  try {
+    return await apiRequest<T>(config, fallback);
+  } catch (error) {
+    throw new AuthApiError(error instanceof Error ? error.message : fallback);
   }
-  return response.json() as Promise<T>;
 }
 
-export function getProfile(accessToken: string) {
-  return profileRequest<AuthUser>(accessToken);
+export function getProfile() {
+  return profileRequest<AuthUser>({ method: "GET", url: "/profile/" }, "Не удалось обновить профиль.");
 }
 
-export function updateProfile(accessToken: string, name: string) {
-  return profileRequest<AuthUser>(accessToken, { method: "PATCH", body: JSON.stringify({ name }) });
+export function updateProfile(name: string) {
+  return profileRequest<AuthUser>({ method: "PATCH", url: "/profile/", data: { name } }, "Не удалось обновить профиль.");
 }
 
-export async function uploadAvatar(accessToken: string, file: File): Promise<AuthUser> {
+export function uploadAvatar(file: File) {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await fetch("/api/v1/profile/avatar", {
-    method: "POST",
-    body: formData,
-    credentials: "include",
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  if (!response.ok) {
-    const payload = await response.json().catch(() => null);
-    throw new AuthApiError(payload && typeof payload.detail === "string" ? payload.detail : "Не удалось загрузить аватар.");
-  }
-  return response.json() as Promise<AuthUser>;
+  return profileRequest<AuthUser>({ method: "POST", url: "/profile/avatar", data: formData, headers: { "Content-Type": "multipart/form-data" } }, "Не удалось загрузить аватар.");
 }

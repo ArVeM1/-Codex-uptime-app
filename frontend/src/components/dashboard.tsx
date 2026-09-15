@@ -30,7 +30,7 @@ export function Dashboard() {
   useEffect(() => {
     if (!accessToken) return;
     const controller = new AbortController();
-    void getMonitors(accessToken, controller.signal)
+    void getMonitors(controller.signal)
       .then(setMonitors)
       .catch((requestError: unknown) => {
         if (requestError instanceof DOMException && requestError.name === "AbortError") return;
@@ -44,7 +44,7 @@ export function Dashboard() {
     event.preventDefault(); if (!accessToken) return;
     setError(null); setIsCreating(true);
     try {
-      const monitor = await createMonitor(accessToken, { url, interval_value: Number(intervalValue), interval_unit: intervalUnit });
+      const monitor = await createMonitor({ url, interval_value: Number(intervalValue), interval_unit: intervalUnit });
       setMonitors((current) => [...current, monitor]); setUrl(""); setIntervalValue("5"); setIsFormOpen(false);
     } catch (requestError) { setError(requestError instanceof AuthApiError ? requestError.message : "Не удалось создать точку мониторинга."); }
     finally { setIsCreating(false); }

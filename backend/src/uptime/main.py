@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from uptime.api.auth import router as auth_router
 from uptime.api.profile import router as profile_router
+from uptime.api.monitors import router as monitors_router
 from uptime.config import Settings
 from uptime.infrastructure.database import create_session_factory
 
@@ -22,6 +23,7 @@ def create_app(settings: Settings | None = None, session_factory: sessionmaker[S
 
     app.include_router(auth_router)
     app.include_router(profile_router)
+    app.include_router(monitors_router)
     return app
 
 

@@ -33,3 +33,6 @@ def get_current_user_id(
         return TokenService(request.app.state.settings).decode(credentials.credentials, "access")["sub"]
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid access token") from exc
+
+
+CurrentUserId = Annotated[str, Depends(get_current_user_id)]

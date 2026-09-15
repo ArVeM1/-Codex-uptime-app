@@ -1,6 +1,8 @@
 """Pydantic schemas exposed by the authentication API."""
 
-from pydantic import BaseModel, EmailStr, Field
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 
 
 class RegistrationRequest(BaseModel):
@@ -29,3 +31,21 @@ class AccessTokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+
+
+IntervalUnit = Literal["seconds", "minutes", "hours"]
+
+
+class MonitorCreateRequest(BaseModel):
+    url: HttpUrl
+    interval_value: int = Field(ge=1, le=31_536_000)
+    interval_unit: IntervalUnit
+
+
+class MonitorResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    url: str
+    interval_value: int
+    interval_unit: IntervalUnit

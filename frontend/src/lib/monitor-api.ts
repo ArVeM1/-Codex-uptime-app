@@ -1,22 +1,22 @@
+import type { AxiosRequestConfig } from "axios";
+import { apiRequest } from "./api-client";
 import { AuthApiError } from "./auth-api";
 
 export type IntervalUnit = "seconds" | "minutes" | "hours";
 export type Monitor = { id: string; url: string; interval_value: number; interval_unit: IntervalUnit };
 
-async function monitorRequest<T>(accessToken: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch("/api/v1/monitors", {
-    ...init,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}`, ...init.headers },
-  });
-  if (!response.ok) {
-    const payload = await response.json().catch(() => null);
-    throw new AuthApiError(payload && typeof payload.detail === "string" ? payload.detail : "Не удалось выполнить запрос.");
+async function monitorRequest<T>(config: AxiosRequestConfig): Promise<T> {
+  try {
+    return await apiRequest<T>(config, "Не удалось выполнить запрос.");
+  } catch (error) {
+    throw new AuthApiError(error instanceof Error ? error.message : "Не удалось выполнить запрос.");
   }
-  return response.json() as Promise<T>;
 }
 
-export function getMonitors(accessToken: string, signal?: AbortSignal) { return monitorRequest<Monitor[]>(accessToken, { signal }); }
-export function createMonitor(accessToken: string, input: Omit<Monitor, "id">) {
-  return monitorRequest<Monitor>(accessToken, { method: "POST", body: JSON.stringify(input) });
+export function getMonitors(signal?: AbortSignal) {
+  return monitorRequest<Monitor[]>({ method: "GET", url: "/monitors", signal });
+}
+
+export function createMonitor(input: Omit<Monitor, "id">) {
+  return monitorRequest<Monitor>({ method: "POST", url: "/monitors", data: input });
 }
